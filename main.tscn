@@ -1,0 +1,117 @@
+[gd_scene load_steps=13 format=3 uid="uid://cnlebyfkhqsya"]
+
+[ext_resource type="Script" uid="uid://cxm2f3n37jdh4" path="res://Scripts/CardManager.gd" id="1_0xm2m"]
+[ext_resource type="Script" uid="uid://c8jiust180x7a" path="res://Scripts/OppHand.gd" id="3_4c57u"]
+[ext_resource type="PackedScene" uid="uid://b70fgfay4rvh2" path="res://Scenes/CardSlot.tscn" id="3_h2yge"]
+[ext_resource type="Script" uid="uid://2iquo71m0ins" path="res://Scripts/CardSlot.gd" id="4_1bvp3"]
+[ext_resource type="Script" uid="uid://cchds1rtg84bb" path="res://Scripts/PlayerHand.gd" id="4_lquwl"]
+[ext_resource type="Script" uid="uid://02oeuqw7lvqk" path="res://Scripts/Deck.gd" id="5_7mycd"]
+[ext_resource type="Texture2D" uid="uid://pfr0r6q20yui" path="res://Assets/cardback.png" id="5_lquwl"]
+[ext_resource type="Script" uid="uid://c38abbq73kdq3" path="res://Scripts/OppDeck.gd" id="6_efxa6"]
+[ext_resource type="Script" uid="uid://d1x10sjog4huv" path="res://Scripts/InputManager.gd" id="7_272bh"]
+[ext_resource type="PackedScene" uid="uid://ddryciqbmaqqb" path="res://Scenes/OppCardSlot.tscn" id="8_5vw27"]
+[ext_resource type="Script" uid="uid://dunsulnrnpdh1" path="res://Scripts/BattleManager.gd" id="9_kek77"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7mycd"]
+size = Vector2(126, 200)
+
+[node name="Main" type="Node2D"]
+
+[node name="CardManager" type="Node2D" parent="."]
+scale = Vector2(0.9, 0.9)
+script = ExtResource("1_0xm2m")
+
+[node name="PlayerHand" type="Node2D" parent="."]
+script = ExtResource("4_lquwl")
+
+[node name="OppHand" type="Node2D" parent="."]
+script = ExtResource("3_4c57u")
+
+[node name="Deck" type="Node2D" parent="."]
+position = Vector2(140, 955)
+script = ExtResource("5_7mycd")
+
+[node name="DeckImage" type="Sprite2D" parent="Deck"]
+z_index = -2
+texture = ExtResource("5_lquwl")
+
+[node name="Area2D" type="Area2D" parent="Deck"]
+collision_layer = 4
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Deck/Area2D"]
+shape = SubResource("RectangleShape2D_7mycd")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Deck"]
+z_index = -3
+offset_left = 69.0
+offset_top = 41.0
+offset_right = 135.0
+offset_bottom = 103.0
+scale = Vector2(3, 3)
+text = "0"
+
+[node name="OppDeck" type="Node2D" parent="."]
+position = Vector2(1700, 125)
+script = ExtResource("6_efxa6")
+
+[node name="DeckImage" type="Sprite2D" parent="OppDeck"]
+z_index = -2
+texture = ExtResource("5_lquwl")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="OppDeck"]
+z_index = -3
+offset_left = 69.0
+offset_top = 41.0
+offset_right = 135.0
+offset_bottom = 103.0
+scale = Vector2(3, 3)
+
+[node name="InputManager" type="Node2D" parent="."]
+script = ExtResource("7_272bh")
+
+[node name="Cardslots" type="Node2D" parent="."]
+
+[node name="CardSlot" parent="Cardslots" instance=ExtResource("3_h2yge")]
+position = Vector2(820, 600)
+scale = Vector2(0.9, 0.9)
+script = ExtResource("4_1bvp3")
+
+[node name="CardSlot2" parent="Cardslots" instance=ExtResource("3_h2yge")]
+position = Vector2(650, 600)
+scale = Vector2(0.9, 0.9)
+script = ExtResource("4_1bvp3")
+
+[node name="CardSlot3" parent="Cardslots" instance=ExtResource("3_h2yge")]
+position = Vector2(990, 600)
+scale = Vector2(0.9, 0.9)
+script = ExtResource("4_1bvp3")
+
+[node name="OppCardSlot" parent="Cardslots" instance=ExtResource("8_5vw27")]
+z_index = -3
+position = Vector2(820, 330)
+scale = Vector2(0.9, 0.9)
+
+[node name="OppCardSlot2" parent="Cardslots" instance=ExtResource("8_5vw27")]
+z_index = -3
+position = Vector2(650, 330)
+scale = Vector2(0.9, 0.9)
+
+[node name="OppCardSlot3" parent="Cardslots" instance=ExtResource("8_5vw27")]
+z_index = -3
+position = Vector2(990, 330)
+scale = Vector2(0.9, 0.9)
+
+[node name="EndTurnButton" type="Button" parent="."]
+offset_left = 225.0
+offset_top = 470.0
+offset_right = 303.0
+offset_bottom = 501.0
+text = "End Turn"
+
+[node name="BattleManager" type="Node" parent="."]
+script = ExtResource("9_kek77")
+
+[node name="BattleTimer" type="Timer" parent="."]
+
+[connection signal="pressed" from="EndTurnButton" to="BattleManager" method="_on_end_turn_button_pressed"]

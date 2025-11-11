@@ -114,4 +114,20 @@ script = ExtResource("9_kek77")
 
 [node name="BattleTimer" type="Timer" parent="."]
 
+[node name="PlayerHealth" type="RichTextLabel" parent="."]
+offset_left = 130.0
+offset_top = 630.0
+offset_right = 170.0
+offset_bottom = 670.0
+scale = Vector2(2.5, 2.5)
+text = "0"
+
+[node name="OpponentHealth" type="RichTextLabel" parent="."]
+offset_left = 130.0
+offset_top = 270.0
+offset_right = 170.0
+offset_bottom = 310.0
+scale = Vector2(2.5, 2.5)
+text = "0"
+
 [connection signal="pressed" from="EndTurnButton" to="BattleManager" method="_on_end_turn_button_pressed"]

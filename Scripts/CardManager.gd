@@ -10,13 +10,12 @@ var drag_offset: Vector2 = Vector2.ZERO
 var is_hovering_on_card: bool = false
 var player_hand_reference
 var played_card_this_turn = false
-
+var selected_monster
 
 func _ready() -> void:
 	screen_size = get_viewport_rect().size
 	player_hand_reference = $"../PlayerHand"
 	$"../InputManager".connect("left_mouse_button_released", on_left_click_released)
-
 
 func _process(delta: float) -> void:
 	if card_being_dragged:
@@ -32,6 +31,34 @@ func _process(delta: float) -> void:
 		# Use global_position to match the global mouse coordinates
 		card_being_dragged.global_position = target_pos
 
+func card_clicked(card):
+	if card.card_slot_card_is_in:
+		if $"../BattleManager".is_opponents_turn == false:
+			if $"../BattleManager".player_is_attacking == false:
+				if card not in $"../BattleManager".player_card_that_attacked_this_turn:
+				#card is on the field
+					if $"../BattleManager".opponent_cards_on_field.size() == 0:
+						$"../BattleManager".direct_attack(card, "player")
+						return
+					else:
+						select_card_for_battle(card)
+				
+	else:
+		start_drag(card) #Card in hand
+
+func select_card_for_battle(card):
+	if selected_monster:
+		#if card already selected
+		if selected_monster == card:
+			card.position.y += 20
+			selected_monster = null
+		else:
+			selected_monster.position.y += 20
+			selected_monster = card
+			card.position.y -= 20
+	else:
+		selected_monster = card
+		card.position.y -= 20
 
 func start_drag(card: Node2D) -> void:
 	card_being_dragged = card
@@ -39,7 +66,6 @@ func start_drag(card: Node2D) -> void:
 	
 	# Store where on the card we grabbed it (offset from mouse to card position)
 	drag_offset = card.global_position - get_global_mouse_position()
-
 
 func finish_drag() -> void:
 	# Small hover/selected scale
@@ -52,8 +78,9 @@ func finish_drag() -> void:
 		played_card_this_turn = true
 		# Drop directly into slot – assumes same parent / compatible coords
 		card_being_dragged.global_position = card_slot_found.global_position
-		card_being_dragged.get_node("Area2D/CollisionShape2D").disabled = true
 		card_slot_found.card_in_slot = true
+		card_slot_found.get_node("Area2D/CollisionShape2D").disabled = true
+		card_being_dragged.card_slot_card_is_in = card_slot_found
 		$"../BattleManager".player_cards_on_field.append(card_being_dragged)
 		
 	else:
@@ -63,22 +90,25 @@ func finish_drag() -> void:
 	card_being_dragged = null
 	drag_offset = Vector2.ZERO
 
+func unselect_selected_monster():
+	if selected_monster:
+		selected_monster.position.y += 20
+		selected_monster = null
 
 func connect_card_signals(card):
 	card.connect("hovered", on_howered_over_card)
 	card.connect("hovered_off", on_howered_off_card)
 
-
 func on_left_click_released():
 	if card_being_dragged:
 		finish_drag() 
 
-
 func on_howered_over_card(card):
+	if card.card_slot_card_is_in:
+		return
 	if !is_hovering_on_card:
 		is_hovering_on_card = true
 		highlight_card(card, true)
-
 
 func on_howered_off_card(card):
 	if !card_being_dragged:
@@ -89,7 +119,6 @@ func on_howered_off_card(card):
 		else:
 			is_hovering_on_card = false
 
-
 func highlight_card(card, hovered):
 	if hovered:
 		card.scale = Vector2(1.05, 1.05)
@@ -97,7 +126,6 @@ func highlight_card(card, hovered):
 	else:
 		card.scale = Vector2(1, 1)
 		card.z_index = 1
-
 
 func raycast_check_for_card_slot():
 	var space_state = get_world_2d().direct_space_state
@@ -110,7 +138,6 @@ func raycast_check_for_card_slot():
 		return result[0].collider.get_parent()
 	return null
 
-
 func raycast_check_for_card():
 	var space_state = get_world_2d().direct_space_state
 	var parameters = PhysicsPointQueryParameters2D.new()
@@ -122,7 +149,6 @@ func raycast_check_for_card():
 		return get_card_with_highest_z_index(result)
 	return null
 
-
 func get_card_with_highest_z_index(cards):
 	var highest_z_card = cards[0].collider.get_parent()
 	var highest_z_index = highest_z_card.z_index
@@ -133,7 +159,6 @@ func get_card_with_highest_z_index(cards):
 			highest_z_card = current_card
 			highest_z_index = current_card.z_index
 	return highest_z_card
-
 
 func reset_played_card():
 	played_card_this_turn = false

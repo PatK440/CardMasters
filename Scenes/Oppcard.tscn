@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://cbmhv74q75rd"]
+[gd_scene load_steps=8 format=3 uid="uid://cbmhv74q75rd"]
 
 [ext_resource type="Script" uid="uid://ba0mnge877yxa" path="res://Scripts/Oppcard.gd" id="1_q2u2m"]
 [ext_resource type="Texture2D" uid="uid://b6bijcmtp7ip0" path="res://Cards/RobinHood.png" id="2_glgmq"]
@@ -161,6 +161,9 @@ _data = {
 &"card_flip": SubResource("Animation_eumee")
 }
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_q2u2m"]
+size = Vector2(125, 200)
+
 [node name="Card" type="Node2D"]
 position = Vector2(1780, 125)
 script = ExtResource("1_q2u2m")
@@ -208,3 +211,11 @@ libraries = {
 
 [node name="CardImageBack" type="Sprite2D" parent="."]
 texture = ExtResource("3_iavm4")
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-0.5, 0)
+shape = SubResource("RectangleShape2D_q2u2m")

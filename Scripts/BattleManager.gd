@@ -8,8 +8,11 @@ var battle_timer
 var empty_card_slots = []
 var opponent_cards_on_field = []
 var player_cards_on_field = []
+var player_card_that_attacked_this_turn = []
 var player_health
 var opponent_health
+var is_opponents_turn = false
+var player_is_attacking = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -27,8 +30,11 @@ func _ready() -> void:
 	$"../OpponentHealth".text = str(opponent_health)
 
 func _on_end_turn_button_pressed() -> void:
+	is_opponents_turn = true
 	$"../EndTurnButton".disabled = true
 	$"../EndTurnButton".visible = false
+	$"../CardManager".unselect_selected_monster()
+	player_card_that_attacked_this_turn = []
 	opponent_turn()
 
 func opponent_turn():
@@ -53,7 +59,7 @@ func opponent_turn():
 				await attack(c, card_to_attack, "opponent")
 			else:
 				#Perform direct attack(s)
-				direct_attack(c, "opponent")
+				await direct_attack(c, "opponent")
 
 	#End enemy turn
 	end_opponent_turn()
@@ -65,7 +71,9 @@ func direct_attack(attacking_card, attacker):
 	if attacker == "opponent":
 		new_position_y = 1080
 	else: 
+		player_is_attacking = true
 		new_position_y = 0
+		player_card_that_attacked_this_turn.append(attacking_card)
 	
 	# Use GLOBAL x so the card moves straight up/down in world space
 	var new_position = Vector2(attacking_card.global_position.x, new_position_y)
@@ -105,8 +113,15 @@ func direct_attack(attacking_card, attacker):
 	attacking_card.z_index = 0
 	await wait(0.25)
 	
+	if attacker == "player":
+		player_is_attacking = false
 
 func attack(attacking_card, defending_card, attacker):
+	if attacker == "player":
+		player_is_attacking = true
+		$"../CardManager".selected_monster = null
+		player_card_that_attacked_this_turn.append(attacking_card)
+	
 	attacking_card.z_index = 5
 	var new_position = Vector2(defending_card.position.x - 50, defending_card.position.y - BATTLE_POSITION_OFFSET)
 	var tween = get_tree().create_tween()
@@ -130,7 +145,80 @@ func attack(attacking_card, defending_card, attacker):
 	)
 	
 	#Damage
-	defending_card.health = max(0, defending_card.health - attacking_card.attack)
+	defending_card.defence = max(0, defending_card.defence - attacking_card.attack)
+	defending_card.get_node("Defence").text = str(defending_card.defence)
+	attacking_card.defence = max(0, attacking_card.defence - defending_card.attack)
+	attacking_card.get_node("Defence").text = str(attacking_card.defence)
+	await wait(0.75)
+	attacking_card.z_index = 0
+	
+	var card_was_destroyed = false
+	#Destroy card if Defence has gone to 0
+	if attacking_card.defence == 0:
+		destroy_card(attacking_card, attacker)
+		card_was_destroyed = true
+	if defending_card.defence == 0:
+		if attacker == "opponent":
+			destroy_card(defending_card, "player")
+		else:
+			destroy_card(defending_card, "opponent")
+		card_was_destroyed = true
+		
+	if card_was_destroyed:
+		await wait(1)
+		
+	if attacker == "player":
+		player_is_attacking = false
+
+func destroy_card(card, card_owner):
+	var new_position: Vector2
+	var slot = card.card_slot_card_is_in
+	
+	# Decide discard pile and remove from battlefield arrays
+	if card_owner == "player":
+		card.get_node("Area2D/CollisionShape2D").disabled = true
+		new_position = $"../PlayerDiscardPile".position
+		if card in player_cards_on_field:
+			player_cards_on_field.erase(card)
+			card.card_slot_card_is_in.get_node("Area2D/CollisionShape2D").disabled = false ##mahdollinen ongelma
+	else:
+		new_position = $"../OpponentDiscardPile".position
+		if card in opponent_cards_on_field:
+			opponent_cards_on_field.erase(card)
+		
+	# Free the slot
+	if slot:
+		slot.card_in_slot = false
+		var slot_shape = slot.get_node("Area2D/CollisionShape2D")
+		if slot_shape:
+			slot_shape.disabled = false
+
+	# If you only store opponent slots in empty_card_slots, it's safe to re-add it
+		if card_owner != "player":
+			if slot not in empty_card_slots:
+				empty_card_slots.append(slot)
+
+	card.card_slot_card_is_in = null
+	
+	# Move card to discard pile
+	var tween = get_tree().create_tween()
+	var target_pos_in_parent = card.get_parent().to_local(new_position)
+	tween.tween_property(
+		card,
+		"position",
+		target_pos_in_parent,
+		CARD_MOVE_SPEED
+	)
+	await wait(0.75)
+	# TODO: queue_free card or hide it, whatever you want here
+
+func enemy_card_selected(defending_card):
+	var attacking_card = $"../CardManager".selected_monster
+	if attacking_card:
+		if defending_card in opponent_cards_on_field:
+			if player_is_attacking == false:
+				$"../CardManager".selected_monster = null
+				attack(attacking_card, defending_card, "player")
 
 func try_play_card_with_highest_atk():
 		#Play card
@@ -178,5 +266,6 @@ func end_opponent_turn():
 	#Reset player deck draw and play limit
 	$"../Deck".reset_draw() 
 	$"../CardManager".reset_played_card()
+	is_opponents_turn = false
 	$"../EndTurnButton".disabled = false
 	$"../EndTurnButton".visible = true

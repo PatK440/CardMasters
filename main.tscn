@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://cnlebyfkhqsya"]
+[gd_scene load_steps=14 format=3 uid="uid://cnlebyfkhqsya"]
 
 [ext_resource type="Script" uid="uid://cxm2f3n37jdh4" path="res://Scripts/CardManager.gd" id="1_0xm2m"]
 [ext_resource type="Script" uid="uid://c8jiust180x7a" path="res://Scripts/OppHand.gd" id="3_4c57u"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://d1x10sjog4huv" path="res://Scripts/InputManager.gd" id="7_272bh"]
 [ext_resource type="PackedScene" uid="uid://ddryciqbmaqqb" path="res://Scenes/OppCardSlot.tscn" id="8_5vw27"]
 [ext_resource type="Script" uid="uid://dunsulnrnpdh1" path="res://Scripts/BattleManager.gd" id="9_kek77"]
+[ext_resource type="Texture2D" uid="uid://ipw84g254y72" path="res://Assets/cardslot.png" id="12_dg77c"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7mycd"]
 size = Vector2(126, 200)
@@ -91,16 +92,19 @@ script = ExtResource("4_1bvp3")
 z_index = -3
 position = Vector2(820, 330)
 scale = Vector2(0.9, 0.9)
+script = ExtResource("4_1bvp3")
 
 [node name="OppCardSlot2" parent="Cardslots" instance=ExtResource("8_5vw27")]
 z_index = -3
 position = Vector2(650, 330)
 scale = Vector2(0.9, 0.9)
+script = ExtResource("4_1bvp3")
 
 [node name="OppCardSlot3" parent="Cardslots" instance=ExtResource("8_5vw27")]
 z_index = -3
 position = Vector2(990, 330)
 scale = Vector2(0.9, 0.9)
+script = ExtResource("4_1bvp3")
 
 [node name="EndTurnButton" type="Button" parent="."]
 offset_left = 225.0
@@ -129,5 +133,21 @@ offset_right = 170.0
 offset_bottom = 310.0
 scale = Vector2(2.5, 2.5)
 text = "0"
+
+[node name="PlayerDiscardPile" type="Node2D" parent="."]
+z_index = -4
+position = Vector2(1500, 600)
+scale = Vector2(0.9, 0.9)
+
+[node name="Sprite2D" type="Sprite2D" parent="PlayerDiscardPile"]
+texture = ExtResource("12_dg77c")
+
+[node name="OpponentDiscardPile" type="Node2D" parent="."]
+z_index = -4
+position = Vector2(1500, 330)
+scale = Vector2(0.9, 0.9)
+
+[node name="Sprite2D" type="Sprite2D" parent="OpponentDiscardPile"]
+texture = ExtResource("12_dg77c")
 
 [connection signal="pressed" from="EndTurnButton" to="BattleManager" method="_on_end_turn_button_pressed"]

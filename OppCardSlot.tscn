@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://ddryciqbmaqqb"]
-
-[ext_resource type="Texture2D" uid="uid://ipw84g254y72" path="res://Assets/cardslot.png" id="1_hxi6w"]
-
-[node name="CardSlot" type="Node2D"]
-
-[node name="CardSlotImage" type="Sprite2D" parent="."]
-texture = ExtResource("1_hxi6w")

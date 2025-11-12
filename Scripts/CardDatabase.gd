@@ -7,10 +7,11 @@ const CARDS = { #Attack, Defence, Name
 	"Trollface" : [4, 1, "Trollface"],
 	"Stonks" : [3, 2, "Stonks"],
 	"MonkaS" : [1, 6, "MonkaS"],
-	"DonaldPepe" : [2, 3, "Donald Pepe"],
+	"Donald-Pepe" : [2, 3, "Donald Pepe"],
 	"Spurdo" : [3, 4, "Spurdo"],
 	"Hagrid" : [2, 3, "Hargid"],
 	"Harold" : [4,1, "Harold"],
 	"Drakke" : [2, 3, "Drakke"],
-	"GrumpyCat" : [5, 2, "Grumpy Cat"]
+	"GrumpyCat" : [5, 2, "Grumpy Cat"],
+	"Spidey" : [2, 5, "Spiderp"]
 }

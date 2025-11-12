@@ -4,15 +4,16 @@ const CARD_SCENE_PATH = "res://Scenes/card.tscn"
 const CARD_DRAW_SPEED = 0.5
 const STARTING_HAND_SIZE = 5
 
-var player_deck = ["Doge", "Apustaja", "Spurdo", "Luurankimies", "Demoniseta", "Luurankimies", "Demoniseta", "Demoniseta", "Stonks", "OSTonttu"]
+var player_deck = []
 var card_database_reference
 var drawn_card_this_turn = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	card_database_reference = preload("res://Scripts/CardDatabase.gd")
+	player_deck = DeckUtils.generate_random_deck(card_database_reference.CARDS, 15, 3)
 	player_deck.shuffle()
 	$RichTextLabel.text = str(player_deck.size())
-	card_database_reference = preload("res://Scripts/CardDatabase.gd")
 	for i in range(STARTING_HAND_SIZE):
 		draw_card()
 		drawn_card_this_turn = false
